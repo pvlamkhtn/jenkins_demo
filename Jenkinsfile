@@ -1,38 +1,41 @@
 pipeline {
-  agent any
+  agent { docker { image 'ruby:3.2.2' } }
   
   stages {
     stage('Checkout') {
         steps {
-           git branch: 'master', url: 'ssh://git@github.com:pvlamkhtn/jenkins_demo.git/'
+           git branch: 'master', url: 'https://github.com/pvlamkhtn/jenkins_demo.git'
         }
     }
     
-    stage('Install Dependencies') {
-        steps {
-           sh 'bundle install'
-        }
+    stage('bundle install') {
+    	steps{
+	      withEnv(["PATH=$HOME/.rbenv/shims/bundle", "RBENV_SHELL=sh"]){
+		      //sh 'gem install bundler'
+		      sh 'bundle install --jobs 4'
+		    }
+    	}
     }
     
-    stage('Test') {
-        steps {
-           sh 'bundle exec rspec'
-        }
-    }
+    // stage('Test') {
+    //     steps {
+    //        sh 'bundle exec rspec'
+    //     }
+    // }
     
-    stage('Build') {
-        steps {
-          sh 'bundle exec rails assets:precompile'
-          // Additional build steps here
-      }
-    }
+    // stage('Build') {
+    //     steps {
+    //       sh 'bundle exec rails assets:precompile'
+    //       // Additional build steps here
+    //   }
+    // }
     
     // Deployment stage (optional, if deploying locally)
-    stage('Deploy') {
-        steps {
-          // Add deployment steps here if deploying locally
-        }
-    }
+    // stage('Deploy') {
+    //     steps {
+    //       // Add deployment steps here if deploying locally
+    //     }
+    // }
   }
 
   post {
